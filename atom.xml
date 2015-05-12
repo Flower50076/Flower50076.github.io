@@ -4,7 +4,7 @@
   <title><![CDATA[平凡人の程式夢]]></title>
   <link href="http://flower50076.github.io/atom.xml" rel="self"/>
   <link href="http://flower50076.github.io/"/>
-  <updated>2015-05-07T18:29:08+08:00</updated>
+  <updated>2015-05-13T00:40:52+08:00</updated>
   <id>http://flower50076.github.io/</id>
   <author>
     <name><![CDATA[Edward Wang]]></name>
@@ -12,5 +12,107 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[iOS Use OpenCV]]></title>
+    <link href="http://flower50076.github.io/blog/2015/05/13/ios-use-opencv/"/>
+    <updated>2015-05-13T00:25:44+08:00</updated>
+    <id>http://flower50076.github.io/blog/2015/05/13/ios-use-opencv</id>
+    <content type="html"><![CDATA[<h3>最近剛好在學習iOS，想製作一套iOS的AR遊戲，利用OpenCV進行辨識、SceneKit顯示3D圖像&hellip;等，這次先分享如何在iOS使用OpenCV。</h3>
+
+<h5>首先創一個新的XCode project</h5>
+
+<p><img src="http://i.imgur.com/tFcN5fv.png" height="500" alt="New project" /></p>
+
+<h5>之後連結這些Framework</h5>
+
+<p><img src="http://i.imgur.com/jKHHFcw.png" alt="link Framework" /></p>
+
+<h5>再將網路下載的OpenCV Framework匯入專案中</h5>
+
+<p><img src="http://i.imgur.com/epnpmO4.png" alt="OpenCV Framework" /></p>
+
+<h5>接下來就是在pch中加入</h5>
+
+<pre><code>#ifdef __cplusplus
+#import &lt;opencv2/opencv.hpp&gt;
+#endif
+</code></pre>
+
+<blockquote><p>不過在xcode6之後已經將pch檔刪除，有兩種方式可以可以加入以上程式碼，一種為匯入新的pch檔，另一種為直接打入.h檔中</p></blockquote>
+
+<p>第一種匯入pch檔
+<img src="http://i.imgur.com/4mvtHg3.png" alt="pch" /></p>
+
+<p>之後再Build Settings找到Prefix Header打入pch檔的路徑
+<img src="http://i.imgur.com/ujuwGZ1.png" alt="prefix" /></p>
+
+<p>再將程式碼打入pch檔中
+<img src="http://i.imgur.com/qCr9s7c.png" height="200" width="800" alt="opencv" /></p>
+
+<p>第二種為直接打入.h檔中
+<img src="http://i.imgur.com/ZlGgcwE.png" alt="h" /></p>
+
+<h5>大致上iOS的環境已經架設完畢，現在測試看看，首先拉一個imageview跟一個button到viewcontroller，變數命名為imageview</h5>
+
+<pre><code>//.h
+#ifdef __cplusplus
+#import &lt;opencv2/opencv.hpp&gt;
+#endif
+#import &lt;UIKit/UIKit.h&gt;
+#import &lt;opencv2/highgui/ios.h&gt;
+using namespace cv;
+
+@interface ViewController : UIViewController&lt;CvVideoCameraDelegate&gt;
+{
+    CvVideoCamera * videoCamera;
+}
+@property (weak, nonatomic) IBOutlet UIImageView *imageview;
+@property (nonatomic, retain)CvVideoCamera * videoCamera;
+- (IBAction)startCamera:(id)sender;
+
+@end
+</code></pre>
+
+<h5>此時應該會有錯誤，要將.m檔改為.mm檔，表示支援C，再將.mm中加入</h5>
+
+<pre><code>- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view, typically from a nib.
+    self.videoCamera = [[CvVideoCamera alloc] initWithParentView:self.imageview];
+    self.videoCamera.delegate = self;
+    self.videoCamera.defaultAVCaptureDevicePosition = AVCaptureDevicePositionBack;
+    self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPreset640x480;
+    self.videoCamera.defaultAVCaptureVideoOrientation = AVCaptureVideoOrientationPortrait;
+    self.videoCamera.defaultFPS = 30;
+
+}
+</code></pre>
+
+<h5>processImage每秒擷取的圖片，可以在此做影像處理，示範邊緣偵測</h5>
+
+<pre><code>- (void)processImage:(Mat&amp;)image;
+{
+    // Do some OpenCV stuff with the image
+    cvtColor(image, image, CV_BGR2GRAY);//轉灰階
+    Canny(image, image, 50, 50*3, 3);//卡尼邊緣偵測
+}
+</code></pre>
+
+<h5>在button點擊事件中加入開啟相機</h5>
+
+<pre><code>- (IBAction)startCamera:(id)sender {
+    [self.videoCamera start];//開啟相機
+}
+</code></pre>
+
+<h5>到此結束，執行結果</h5>
+
+<p><img src="http://i.imgur.com/awFN1Tf.jpg" width="280">
+<img src="http://i.imgur.com/wwvKAst.jpg" width="280"></p>
+
+<blockquote><p>iOS的OpenCV就示範就這裡，網路上還有許多關於OpenCV的應用可以<a href="http://ccw1986.blogspot.tw/2013/09/learningopencv.html">參考</a>推薦一個。</p></blockquote>
+]]></content>
+  </entry>
   
 </feed>
